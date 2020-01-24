@@ -72,7 +72,7 @@ def normalize_ics(file='calendar.ics'):
         # Only look at events (name == 'VEVENT') that are not cancelled (STATUS != 'TRANSPARENT')
         # Get people from SUMMARY, get valid location from LOCATION/DTSTART
         a = [(get_driver(c.get('SUMMARY')), get_location(c.get('LOCATION'), c.get('DTSTART')),c.get('DTSTART').dt) for c in gcal.walk() if (c.name == 'VEVENT' and c.get('STATUS') != "TRANSPARENT")]
-        return a
+    return a
 
 # =============================================================================
 #         for component in gcal.walk():
