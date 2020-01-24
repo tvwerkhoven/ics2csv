@@ -1,0 +1,9 @@
+calfile: './calendar.ics'
+validamlocs:
+  - 'carpool 1'
+  - 'carpool 2'
+  - 'carpoool 3'
+validpmlocs:
+  - '7'
+  - '8'
+  - '9'
