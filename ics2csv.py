@@ -20,7 +20,7 @@ validpmlocs = config['validpmlocs']
 # https://stackoverflow.com/questions/1276764/stripping-everything-but-alphanumeric-chars-from-a-string-in-python
 pattern = re.compile('[^\w ]+',re.UNICODE)
 
-def get_driver(topic):
+def get_driver_passengers(topic):
     """
     From event topic (summary), get driver and passenger
     
@@ -37,7 +37,7 @@ def get_driver(topic):
         carpool Peter, Martin Wu, Wolfgang (names must be one word only)
         carpool - Peter, Bart-Jan (names must be only alphanumeric, all other tokens are used as separator)
     """
-    names = pattern.sub('', topic).split()
+    names = pattern.sub('', topic).lower().split()
     driver = names[1]
     passengers = names[2:]
     
@@ -72,7 +72,12 @@ def normalize_ics(file='calendar.ics'):
         gcal = Calendar.from_ical(g.read())
         # Only look at events (name == 'VEVENT') that are not cancelled (STATUS != 'TRANSPARENT')
         # Get people from SUMMARY, get valid location from LOCATION/DTSTART
-        a = [(get_driver(c.get('SUMMARY')), get_location(c.get('LOCATION'), c.get('DTSTART')),c.get('DTSTART').dt) for c in gcal.walk() if (c.name == 'VEVENT' and c.get('STATUS') != "TRANSPARENT")]
+        a = [(get_driver_passengers(c.get('SUMMARY')),
+                get_location(c.get('LOCATION'),
+                c.get('DTSTART')),c.get('DTSTART').dt) 
+                    for c in gcal.walk() 
+                        if (c.name == 'VEVENT' and 
+                            c.get('TRANSP') != 'TRANSPARENT')]
     return a
 
 # =============================================================================
