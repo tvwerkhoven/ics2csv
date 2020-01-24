@@ -1,8 +1,8 @@
-calfile: './calendar.ics'
+calfile: './sample/calendar-anon.ics'
 validamlocs:
-  - 'carpool 1'
-  - 'carpool 2'
-  - 'carpoool 3'
+  - 'hsinchu'
+  - 'san diego'
+  - 'hillsboro'
 validpmlocs:
   - '7'
   - '8'
