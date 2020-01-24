@@ -80,21 +80,6 @@ def normalize_ics(file='calendar.ics'):
                             c.get('TRANSP') != 'TRANSPARENT')]
     return a
 
-# =============================================================================
-#         for component in gcal.walk():
-#             # Only look at events that are not cancelled, TRANSP:TRANSPARENT is cancelled
-#             if component.name == 'VEVENT' and component.get('STATUS') != "TRANSPARENT":
-#                 # Get people in this carpool
-#                 driver, passengers = get_driver(component.get('SUMMARY'))
-#     
-#                 # Find validated location 
-#                 location = get_location(component.get('LOCATION'), component.get('DTSTART'))
-#                 
-#                 # Normalize output
-#                 print("D: {}, P: {}, loc: {}, date: {}".format(driver, ",".join(passengers), location, component.get('DTSTART').dt))
-#     
-#               #print(component.get('DTSTART').dt.ctime())
-# =============================================================================
 
 def find_dest(normics):
     """
