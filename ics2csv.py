@@ -81,6 +81,27 @@ def normalize_ics(file='calendar.ics'):
     return a
 
 
+
+
+def carpool_account(normics, tripcost=80):
+    """
+    Given normalized ICS input (driver, passengers, departure location, 
+    start time), distribute tripcost over driver and passenger.
+    """
+
+    balance = {}
+
+    for driverpass, loc, time in normics:
+        print (driverpass)
+        # Unpack driver and passengers
+        driver, passengers = driverpass
+        npers = 1 + len(passengers)
+        balance[driver] = balance.get(driver,0) + tripcost - tripcost/npers
+        for p in passengers:
+            balance[p] = balance.get(p,0) - tripcost/npers
+    print (balance)
+
+
 def find_dest(normics):
     """
     Given normalized ICS input (driver, passengers, departure location, 
@@ -93,4 +114,7 @@ def find_dest(normics):
     pass
 
 normics = normalize_ics(calfile)
-matchedics = find_dest(normics)
+carpacc = carpool_account(normics)
+
+# matchedics = find_dest(normics)
+# carpool_account_distance(normics)
