@@ -39,7 +39,13 @@ def get_driver_passengers(topic):
     # Regexp pattern to strip non-alphanumeric characters
     # https://stackoverflow.com/questions/1276764/stripping-everything-but-alphanumeric-chars-from-a-string-in-python
     # Split topic by non-alphanumeric characters - https://docs.python.org/2/library/re.html
-    names = re.split('[^a-zA-Z]+',topic.strip().lower(), re.UNICODE)
+    names = re.split('[^a-zA-Z]+',topic.lower(), re.UNICODE)
+
+    # Remove empty hits in case string ends in non-alphanumeric char (e.g. 
+    # space). Alternatively we could strip() the string using all 
+    # non-alphanumeric charactere, but another regexp is probably slower
+    names = list(filter(None, names))
+
     driver = names[1]
     passengers = names[2:]
         
@@ -82,7 +88,7 @@ def normalize_ics(file='calendar.ics'):
                             c.get('TRANSP') != 'TRANSPARENT')]
     return normed
 
-def carpool_account(lastevents, tripcost=80):
+def carpool_account(lastevents, tripcost=16):
     """
     Given normalized ICS input (driver, passengers, departure location, 
     start time), distribute tripcost over driver and passenger.
