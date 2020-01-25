@@ -16,10 +16,6 @@ calfile = config['calfile']
 validamlocs = config['validamlocs']
 validpmlocs = config['validpmlocs']
 
-# Regexp pattern to strip non-alphanumeric characters
-# https://stackoverflow.com/questions/1276764/stripping-everything-but-alphanumeric-chars-from-a-string-in-python
-pattern = re.compile('[^\w ]+',re.UNICODE)
-
 def get_driver_passengers(topic):
     """
     From event topic (summary), get driver and passenger
@@ -37,7 +33,10 @@ def get_driver_passengers(topic):
         carpool Peter, Martin Wu, Wolfgang (names must be one word only)
         carpool - Peter, Bart-Jan (names must be only alphanumeric, all other tokens are used as separator)
     """
-    names = pattern.sub('', topic).lower().split()
+    # Regexp pattern to strip non-alphanumeric characters
+    # https://stackoverflow.com/questions/1276764/stripping-everything-but-alphanumeric-chars-from-a-string-in-python
+    # Split topic by non-alphanumeric characters - https://docs.python.org/2/library/re.html
+    names = re.split('\W+',topic.lower(), re.UNICODE)
     driver = names[1]
     passengers = names[2:]
     
