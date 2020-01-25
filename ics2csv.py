@@ -9,6 +9,7 @@ Created on Tue Jan 21 21:28:10 2020
 from icalendar import Calendar
 import re
 import yaml
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 # config should contain
 config = yaml.safe_load(open("utrechtcarpool.yaml"))
@@ -97,8 +98,29 @@ def carpool_account(lastevents, tripcost=80):
             balance[p] = balance.get(p,0) - tripcost/npers
     return balance
 
+def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html'):
+    """
+    Given normalized ICS input (driver, passengers, departure location, 
+    start time), export results to HTML report for human review.
+    """
+    env = Environment(
+        loader=FileSystemLoader('./'),
+        autoescape=False
+    )
+    # select_autoescape(['html', 'xml'])
 
-def find_dest(normics):
+    template = env.get_template(htmltemplate)
+    render = template.render(
+        lastevents=lastevents,
+        balance=balance)
+        # activetop10=stats[30]['active']['allday'],
+        # stats30daily=stats30daily,
+        # stats30alltime=stats30alltime)
+
+    with open('./web/index.html', 'w') as fd:
+        fd.write(render)
+
+def find_dest(lastevents):
     """
     Given normalized ICS input (driver, passengers, departure location, 
     start time), find matching destination location by checking what is the 
@@ -109,8 +131,11 @@ def find_dest(normics):
     """
     pass
 
-normics = normalize_ics(calfile)
-carpacc = carpool_account(normics)
+lastevents = normalize_ics(calfile)
+balance = carpool_account(lastevents)
+print(lastevents[0])
+export_as_html(lastevents, balance)
 
-# matchedics = find_dest(normics)
-# carpool_account_distance(normics)
+
+# matchedics = find_dest(lastevents)
+# carpool_account_distance(lastevents)
