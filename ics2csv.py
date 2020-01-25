@@ -41,8 +41,8 @@ def get_driver_passengers(topic):
     names = re.split('[^a-zA-Z]+',topic.strip().lower(), re.UNICODE)
     driver = names[1]
     passengers = names[2:]
-    
-    return (driver, passengers)
+        
+    return driver, passengers
 
 def get_location(location, time):
     """
@@ -73,8 +73,8 @@ def normalize_ics(file='calendar.ics'):
         gcal = Calendar.from_ical(g.read())
         # Only look at events (name == 'VEVENT') that are not cancelled (STATUS != 'TRANSPARENT')
         # Get people from SUMMARY, get valid location from LOCATION/DTSTART
-        normed = [(get_driver_passengers(c.get('SUMMARY')),
-                get_location(c.get('LOCATION'),
+        normed = [get_driver_passengers(c.get('SUMMARY')) +
+                (get_location(c.get('LOCATION'),
                 c.get('DTSTART')),c.get('DTSTART').dt) 
                     for c in gcal.walk() 
                         if (c.name == 'VEVENT' and 
@@ -89,10 +89,8 @@ def carpool_account(normics, tripcost=80):
 
     balance = {}
 
-    for driverpass, loc, time in normics:
-        print (driverpass)
-        # Unpack driver and passengers
-        driver, passengers = driverpass
+    for driver, passengers, loc, time in lastevents:
+        # print("d: {}, d: {}, p: {}".format(time, driver, ",".join(passengers)))
         npers = 1 + len(passengers)
         balance[driver] = balance.get(driver,0) + tripcost - tripcost/npers
         for p in passengers:
