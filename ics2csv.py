@@ -81,7 +81,7 @@ def normalize_ics(file='calendar.ics'):
                             c.get('TRANSP') != 'TRANSPARENT')]
     return normed
 
-def carpool_account(normics, tripcost=80):
+def carpool_account(lastevents, tripcost=80):
     """
     Given normalized ICS input (driver, passengers, departure location, 
     start time), distribute tripcost over driver and passenger.
@@ -95,7 +95,7 @@ def carpool_account(normics, tripcost=80):
         balance[driver] = balance.get(driver,0) + tripcost - tripcost/npers
         for p in passengers:
             balance[p] = balance.get(p,0) - tripcost/npers
-    print (balance)
+    return balance
 
 
 def find_dest(normics):
