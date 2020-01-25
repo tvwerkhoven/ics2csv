@@ -24,8 +24,8 @@ Correct:
     Carpool - Peter + Martin + Wolfgang
     carpool Peter    Martin Wolfgang
     carpool Peter, Martin, Wolfgang
-    carpool Peter, Martin, Wolfgang
-    helloworld Peter45+++Martin_98,,,---Wolfgang
+    carpool Peter + Martin + Wolfgang +1 (+1 is dropped in accounting, guests are free)
+    helloworld Peter+++Martin_,8123,,---Wolfgang
     
 Incorrect:
     

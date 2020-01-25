@@ -21,12 +21,14 @@ def get_driver_passengers(topic):
     From event topic (summary), get driver and passenger
     
     Expected syntax:
-        '(carpool)([\W]+([\w]+))+'
+        'carpool([\W]+([\w]+))+'
     e.g.
         Carpool - Peter + Martin + Wolfgang
         carpool Peter    Martin Wolfgang
         carpool Peter, Martin, Wolfgang
-    
+        carpool Peter + Martin + Wolfgang +1 (+1 is dropped in accounting, guests are free)
+        helloworld Peter+++Martin_,8123,,---Wolfgang
+
     Not OK:
         Peter Martin Wolfgang (lacks Carpool magic word)
         carpool PeterMartinWolfgang (cannot split names)
@@ -36,7 +38,7 @@ def get_driver_passengers(topic):
     # Regexp pattern to strip non-alphanumeric characters
     # https://stackoverflow.com/questions/1276764/stripping-everything-but-alphanumeric-chars-from-a-string-in-python
     # Split topic by non-alphanumeric characters - https://docs.python.org/2/library/re.html
-    names = re.split('\W+',topic.lower(), re.UNICODE)
+    names = re.split('[^a-zA-Z]+',topic.strip().lower(), re.UNICODE)
     driver = names[1]
     passengers = names[2:]
     
