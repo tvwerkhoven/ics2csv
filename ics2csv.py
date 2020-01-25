@@ -72,16 +72,13 @@ def normalize_ics(file='calendar.ics'):
         gcal = Calendar.from_ical(g.read())
         # Only look at events (name == 'VEVENT') that are not cancelled (STATUS != 'TRANSPARENT')
         # Get people from SUMMARY, get valid location from LOCATION/DTSTART
-        a = [(get_driver_passengers(c.get('SUMMARY')),
+        normed = [(get_driver_passengers(c.get('SUMMARY')),
                 get_location(c.get('LOCATION'),
                 c.get('DTSTART')),c.get('DTSTART').dt) 
                     for c in gcal.walk() 
                         if (c.name == 'VEVENT' and 
                             c.get('TRANSP') != 'TRANSPARENT')]
-    return a
-
-
-
+    return normed
 
 def carpool_account(normics, tripcost=80):
     """
