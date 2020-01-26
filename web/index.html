@@ -1,0 +1,638 @@
+<!doctype html>
+<html class="no-js" lang="">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>Carpool Balance A2</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+		<link rel="stylesheet" href="css/normalize.min.css">
+		<link rel="stylesheet" href="css/main.css">
+
+		<!-- <script src="js/vendor/modernizr-2.8.3.min.js"></script> -->
+		<!-- <script src="js/vendor/modernizr-2.8.3.min.js"></script> -->
+		<script src="js/vendor/highcharts.js"></script>
+		<script src="js/vendor/data.js"></script>
+	</head>
+	<body>
+		<!--[if lt IE 8]>
+			<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+		<![endif]-->
+
+		<div class="header-container">
+			<header class="wrapper clearfix">
+				<h1 class="title">Carpool Balance A2</h1>
+				<nav>
+					<ul>
+						<li><a href="#stats">Stats</a></li>
+						<li><a href="#latest">Latest trips</a></li>
+						<li><a href="#">All trips</a></li>
+					</ul>
+				</nav>
+			</header>
+		</div>
+
+		<div class="main-container">
+			<div class="main wrapper clearfix">
+
+				<article>
+					<header>
+						<a name="stats"></a> 
+						<h1>Stats</h1>
+						<p>Overview of latest credit</p>
+					</header>
+					<section>
+						<p id='hc-balance'></p>
+					</section>
+					<section>
+						<p>
+							<table id="hc-balance-data">
+								<thead>
+									<tr>
+										<th>Carpooler</th><th>Balance (€)</th>
+									</tr>
+								</thead>
+								<tbody>
+
+									<tr>
+										<td>ruben</td>
+										<td>56.00</td>
+									</tr>
+
+									<tr>
+										<td>thomas</td>
+										<td>5.33</td>
+									</tr>
+
+									<tr>
+										<td>joe</td>
+										<td>-20.00</td>
+									</tr>
+
+									<tr>
+										<td>joost</td>
+										<td>-30.67</td>
+									</tr>
+
+									<tr>
+										<td>gijs</td>
+										<td>-16.00</td>
+									</tr>
+
+									<tr>
+										<td>tim</td>
+										<td>-10.67</td>
+									</tr>
+
+									<tr>
+										<td>stef</td>
+										<td>44.00</td>
+									</tr>
+
+									<tr>
+										<td>andy</td>
+										<td>-21.33</td>
+									</tr>
+
+									<tr>
+										<td>bas</td>
+										<td>-46.67</td>
+									</tr>
+
+									<tr>
+										<td>carsten</td>
+										<td>34.67</td>
+									</tr>
+
+									<tr>
+										<td>new</td>
+										<td>-8.00</td>
+									</tr>
+
+									<tr>
+										<td>time</td>
+										<td>-8.00</td>
+									</tr>
+
+									<tr>
+										<td>bart</td>
+										<td>34.67</td>
+									</tr>
+
+									<tr>
+										<td>jelte</td>
+										<td>-13.33</td>
+									</tr>
+
+								</tbody>
+							</table>
+						</p>
+					</section>
+<!--                     <footer>
+						<h3>article footer h3</h3>
+					</footer> -->
+				</article>
+
+				<article>
+					<header>
+						<a name="latest"></a> 
+						<h1>Latest carpool trips</h1>
+						<p>The below data is used as input. If you spot errors, 
+						pls fix in calendar source data.</p>
+					</header>
+					<section>
+						<p>
+							<table>
+								<thead>
+									<tr>
+										<th>Date</th><th>Driver</th><th>Passengers</th>
+									</tr>
+								</thead>
+								<tbody>
+
+								<tr><td>2019-10-28 06:45:00+01:00</td><td>ruben</td><td>2: thomas, joe</td></tr>
+
+								<tr><td>2019-10-28 07:03:00+01:00</td><td>joost</td><td>2: gijs, tim</td></tr>
+
+								<tr><td>2019-10-28 16:05:00+01:00</td><td>joost</td><td>2: gijs, tim</td></tr>
+
+								<tr><td>2019-10-28 17:30:00+01:00</td><td>ruben</td><td>2: thomas, joe</td></tr>
+
+								<tr><td>2019-10-29 06:45:00+01:00</td><td>gijs</td><td>1: joost</td></tr>
+
+								<tr><td>2019-10-29 06:55:00+01:00</td><td>stef</td><td>1: ruben</td></tr>
+
+								<tr><td>2019-10-29 06:55:00+01:00</td><td>joe</td><td>1: andy</td></tr>
+
+								<tr><td>2019-10-29 16:00:00+01:00</td><td>gijs</td><td>1: joost</td></tr>
+
+								<tr><td>2019-10-29 18:00:00+01:00</td><td>stef</td><td>1: ruben</td></tr>
+
+								<tr><td>2019-10-29 18:00:00+01:00</td><td>joe</td><td>1: andy</td></tr>
+
+								<tr><td>2019-10-30 06:40:00+01:00</td><td>thomas</td><td>2: tim, joe</td></tr>
+
+								<tr><td>2019-10-30 06:55:00+01:00</td><td>ruben</td><td>2: stef, gijs</td></tr>
+
+								<tr><td>2019-10-30 16:00:00+01:00</td><td>ruben</td><td>2: stef, gijs</td></tr>
+
+								<tr><td>2019-10-30 16:00:00+01:00</td><td>thomas</td><td>2: tim, joe</td></tr>
+
+								<tr><td>2019-10-31 06:55:00+01:00</td><td>joost</td><td>3: stef, gijs, ruben</td></tr>
+
+								<tr><td>2019-10-31 07:03:00+01:00</td><td>joe</td><td>1: bas</td></tr>
+
+								<tr><td>2019-10-31 16:00:00+01:00</td><td>joost</td><td>3: stef, gijs, ruben</td></tr>
+
+								<tr><td>2019-10-31 18:00:00+01:00</td><td>joe</td><td>1: bas</td></tr>
+
+								<tr><td>2019-11-01 06:55:00+01:00</td><td>ruben</td><td>1: gijs</td></tr>
+
+								<tr><td>2019-11-01 06:55:00+01:00</td><td>andy</td><td>2: joe, tim</td></tr>
+
+								<tr><td>2019-11-01 16:00:00+01:00</td><td>ruben</td><td>1: gijs</td></tr>
+
+								<tr><td>2019-11-01 16:00:00+01:00</td><td>andy</td><td>2: joe, tim</td></tr>
+
+								<tr><td>2019-11-04 06:40:00+01:00</td><td>thomas</td><td>2: tim, andy</td></tr>
+
+								<tr><td>2019-11-04 07:03:00+01:00</td><td>ruben</td><td>2: joe, bas</td></tr>
+
+								<tr><td>2019-11-04 16:00:00+01:00</td><td>joost</td><td>1: gijs</td></tr>
+
+								<tr><td>2019-11-04 16:35:00+01:00</td><td>thomas</td><td>2: tim, andy</td></tr>
+
+								<tr><td>2019-11-04 18:10:00+01:00</td><td>ruben</td><td>2: joe, bas</td></tr>
+
+								<tr><td>2019-11-05 06:55:00+01:00</td><td>gijs</td><td>1: joost</td></tr>
+
+								<tr><td>2019-11-05 07:00:00+01:00</td><td>joe</td><td>1: bas</td></tr>
+
+								<tr><td>2019-11-05 16:00:00+01:00</td><td>gijs</td><td>1: joost</td></tr>
+
+								<tr><td>2019-11-05 18:00:00+01:00</td><td>joe</td><td>1: bas</td></tr>
+
+								<tr><td>2019-11-06 06:55:00+01:00</td><td>gijs</td><td>2: ruben, stef</td></tr>
+
+								<tr><td>2019-11-06 06:55:00+01:00</td><td>tim</td><td>3: joe, thomas, carsten</td></tr>
+
+								<tr><td>2019-11-06 16:05:00+01:00</td><td>tim</td><td>3: joe, thomas, carsten</td></tr>
+
+								<tr><td>2019-11-06 18:00:00+01:00</td><td>gijs</td><td>2: ruben, stef</td></tr>
+
+								<tr><td>2019-11-07 06:40:00+01:00</td><td>ruben</td><td>2: gijs, joost</td></tr>
+
+								<tr><td>2019-11-07 06:55:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-07 16:00:00+01:00</td><td>ruben</td><td>2: gijs, joost</td></tr>
+
+								<tr><td>2019-11-07 18:00:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-08 06:44:00+01:00</td><td>ruben</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-08 07:03:00+01:00</td><td>stef</td><td>2: thomas, bas</td></tr>
+
+								<tr><td>2019-11-08 16:10:00+01:00</td><td>stef</td><td>3: thomas, bas, tim</td></tr>
+
+								<tr><td>2019-11-11 06:40:00+01:00</td><td>joost</td><td>1: gijs</td></tr>
+
+								<tr><td>2019-11-11 06:50:00+01:00</td><td>ruben</td><td>3: thomas, joe, bas</td></tr>
+
+								<tr><td>2019-11-11 16:00:00+01:00</td><td>joost</td><td>1: gijs</td></tr>
+
+								<tr><td>2019-11-11 17:40:00+01:00</td><td>ruben</td><td>3: thomas, joe, bas</td></tr>
+
+								<tr><td>2019-11-12 06:40:00+01:00</td><td>gijs</td><td>1: joost</td></tr>
+
+								<tr><td>2019-11-12 06:42:00+01:00</td><td>tim</td><td>3: joe, new, time</td></tr>
+
+								<tr><td>2019-11-12 06:42:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-12 16:00:00+01:00</td><td>gijs</td><td>1: joost</td></tr>
+
+								<tr><td>2019-11-12 18:00:00+01:00</td><td>tim</td><td>3: joe, new, time</td></tr>
+
+								<tr><td>2019-11-12 18:12:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-13 06:48:00+01:00</td><td>ruben</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-13 06:48:00+01:00</td><td>joe</td><td>2: joost, thomas</td></tr>
+
+								<tr><td>2019-11-13 16:00:00+01:00</td><td>joe</td><td>2: joost, thomas</td></tr>
+
+								<tr><td>2019-11-13 18:00:00+01:00</td><td>carsten</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-14 06:48:00+01:00</td><td>stef</td><td>3: ruben, joe, gijs</td></tr>
+
+								<tr><td>2019-11-14 18:00:00+01:00</td><td>stef</td><td>3: ruben, joe, gijs</td></tr>
+
+								<tr><td>2019-11-15 06:48:00+01:00</td><td>tim</td><td>2: stef, gijs</td></tr>
+
+								<tr><td>2019-11-15 07:30:00+01:00</td><td>thomas</td><td>1: ruben</td></tr>
+
+								<tr><td>2019-11-15 15:00:00+01:00</td><td>thomas</td><td>2: joe, bart</td></tr>
+
+								<tr><td>2019-11-15 16:00:00+01:00</td><td>tim</td><td>2: stef, gijs</td></tr>
+
+								<tr><td>2019-11-18 06:35:00+01:00</td><td>gijs</td><td>1: joost</td></tr>
+
+								<tr><td>2019-11-18 06:42:00+01:00</td><td>thomas</td><td>1: joe</td></tr>
+
+								<tr><td>2019-11-18 06:45:00+01:00</td><td>bas</td><td>1: stef</td></tr>
+
+								<tr><td>2019-11-18 06:48:00+01:00</td><td>tim</td><td>2: ruben, jelte</td></tr>
+
+								<tr><td>2019-11-18 16:00:00+01:00</td><td>thomas</td><td>2: joe, joost</td></tr>
+
+								<tr><td>2019-11-18 16:00:00+01:00</td><td>gijs</td><td>1: joost</td></tr>
+
+								<tr><td>2019-11-18 16:05:00+01:00</td><td>tim</td><td>1: jelte</td></tr>
+
+								<tr><td>2019-11-18 16:05:00+01:00</td><td>thomas</td><td>1: joe</td></tr>
+
+								<tr><td>2019-11-18 18:10:00+01:00</td><td>stef</td><td>1: ruben</td></tr>
+
+								<tr><td>2019-11-19 06:35:00+01:00</td><td>joost</td><td>1: gijs</td></tr>
+
+								<tr><td>2019-11-19 06:42:00+01:00</td><td>tim</td><td>1: joe</td></tr>
+
+								<tr><td>2019-11-19 16:00:00+01:00</td><td>joost</td><td>1: gijs</td></tr>
+
+								<tr><td>2019-11-19 17:30:00+01:00</td><td>tim</td><td>1: joe</td></tr>
+
+								<tr><td>2019-11-20 06:50:00+01:00</td><td>thomas</td><td>2: ruben, stef</td></tr>
+
+								<tr><td>2019-11-20 18:00:00+01:00</td><td>thomas</td><td>2: ruben, stef</td></tr>
+
+								<tr><td>2019-11-21 06:40:00+01:00</td><td>bart</td><td>1: thomas</td></tr>
+
+								<tr><td>2019-11-21 06:48:00+01:00</td><td>stef</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-21 06:48:00+01:00</td><td>joe</td><td>2: gijs, tim</td></tr>
+
+								<tr><td>2019-11-21 16:00:00+01:00</td><td>bart</td><td>1: thomas</td></tr>
+
+								<tr><td>2019-11-21 16:00:00+01:00</td><td>joe</td><td>1: gijs</td></tr>
+
+								<tr><td>2019-11-21 18:00:00+01:00</td><td>stef</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-21 18:00:00+01:00</td><td>stef</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-22 06:42:00+01:00</td><td>tim</td><td>3: joe, thomas, bart</td></tr>
+
+								<tr><td>2019-11-22 15:30:00+01:00</td><td>tim</td><td>3: joe, thomas, bart</td></tr>
+
+								<tr><td>2019-11-25 06:48:00+01:00</td><td>ruben</td><td>1: joe</td></tr>
+
+								<tr><td>2019-11-25 06:48:00+01:00</td><td>joost</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-25 16:05:00+01:00</td><td>joost</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-25 17:10:00+01:00</td><td>ruben</td><td>1: joe</td></tr>
+
+								<tr><td>2019-11-26 06:48:00+01:00</td><td>bart</td><td>2: thomas, gijs</td></tr>
+
+								<tr><td>2019-11-26 06:48:00+01:00</td><td>tim</td><td>2: joe, bas</td></tr>
+
+								<tr><td>2019-11-26 16:00:00+01:00</td><td>bart</td><td>2: thomas, gijs</td></tr>
+
+								<tr><td>2019-11-26 17:45:00+01:00</td><td>tim</td><td>2: joe, bas</td></tr>
+
+								<tr><td>2019-11-27 06:42:00+01:00</td><td>joost</td><td>2: ruben, gijs</td></tr>
+
+								<tr><td>2019-11-27 06:42:00+01:00</td><td>tim</td><td>1: joe</td></tr>
+
+								<tr><td>2019-11-27 06:50:00+01:00</td><td>stef</td><td>1: thomas</td></tr>
+
+								<tr><td>2019-11-27 16:00:00+01:00</td><td>joost</td><td>2: ruben, gijs</td></tr>
+
+								<tr><td>2019-11-27 16:05:00+01:00</td><td>tim</td><td>1: joe</td></tr>
+
+								<tr><td>2019-11-27 18:05:00+01:00</td><td>stef</td><td>1: thomas</td></tr>
+
+								<tr><td>2019-11-28 06:40:00+01:00</td><td>thomas</td><td>1: joost</td></tr>
+
+								<tr><td>2019-11-28 06:48:00+01:00</td><td>gijs</td><td>3: joe, ruben, stef</td></tr>
+
+								<tr><td>2019-11-28 16:00:00+01:00</td><td>gijs</td><td>3: joe, ruben, stef</td></tr>
+
+								<tr><td>2019-11-28 17:30:00+01:00</td><td>thomas</td><td>1: joost</td></tr>
+
+								<tr><td>2019-11-29 06:40:00+01:00</td><td>thomas</td><td>1: bart</td></tr>
+
+								<tr><td>2019-11-29 06:42:00+01:00</td><td>stef</td><td>1: gijs</td></tr>
+
+								<tr><td>2019-11-29 06:42:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-29 15:25:00+01:00</td><td>thomas</td><td>1: bart</td></tr>
+
+								<tr><td>2019-11-29 16:05:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-11-29 16:10:00+01:00</td><td>stef</td><td>1: gijs</td></tr>
+
+								<tr><td>2019-12-02 06:48:00+01:00</td><td>gijs</td><td>3: tim, thomas, joe</td></tr>
+
+								<tr><td>2019-12-02 16:00:00+01:00</td><td>gijs</td><td>3: tim, thomas, joe</td></tr>
+
+								<tr><td>2019-12-03 06:42:00+01:00</td><td>joe</td><td>3: tim, bart, thomas</td></tr>
+
+								<tr><td>2019-12-03 06:48:00+01:00</td><td>gijs</td><td>1: stef</td></tr>
+
+								<tr><td>2019-12-03 07:03:00+01:00</td><td>carsten</td><td>1: ruben</td></tr>
+
+								<tr><td>2019-12-03 16:00:00+01:00</td><td>gijs</td><td>1: stef</td></tr>
+
+								<tr><td>2019-12-03 17:45:00+01:00</td><td>joe</td><td>3: tim, bart, thomas</td></tr>
+
+								<tr><td>2019-12-03 18:00:00+01:00</td><td>carsten</td><td>1: ruben</td></tr>
+
+								<tr><td>2019-12-04 06:42:00+01:00</td><td>tim</td><td>2: thomas, joe</td></tr>
+
+								<tr><td>2019-12-04 16:00:00+01:00</td><td>tim</td><td>2: thomas, joe</td></tr>
+
+								<tr><td>2019-12-05 06:42:00+01:00</td><td>tim</td><td>1: joe</td></tr>
+
+								<tr><td>2019-12-05 17:30:00+01:00</td><td>tim</td><td>1: joe</td></tr>
+
+								<tr><td>2019-12-06 06:42:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-12-06 06:48:00+01:00</td><td>bart</td><td>2: thomas, ruben</td></tr>
+
+								<tr><td>2019-12-06 15:30:00+01:00</td><td>bart</td><td>2: thomas, ruben</td></tr>
+
+								<tr><td>2019-12-06 16:45:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-12-09 06:48:00+01:00</td><td>tim</td><td>1: joe</td></tr>
+
+								<tr><td>2019-12-09 07:00:00+01:00</td><td>stef</td><td>1: bas</td></tr>
+
+								<tr><td>2019-12-09 17:30:00+01:00</td><td>tim</td><td>1: joe</td></tr>
+
+								<tr><td>2019-12-09 18:00:00+01:00</td><td>stef</td><td>1: bas</td></tr>
+
+								<tr><td>2019-12-10 06:40:00+01:00</td><td>bas</td><td>1: stef</td></tr>
+
+								<tr><td>2019-12-10 06:40:00+01:00</td><td>tim</td><td>1: andy</td></tr>
+
+								<tr><td>2019-12-10 18:00:00+01:00</td><td>bas</td><td>1: stef</td></tr>
+
+								<tr><td>2019-12-10 21:00:00+01:00</td><td>tim</td><td>1: andy</td></tr>
+
+								<tr><td>2019-12-11 06:48:00+01:00</td><td>bas</td><td>1: tim</td></tr>
+
+								<tr><td>2019-12-11 07:03:00+01:00</td><td>joe</td><td>1: stef</td></tr>
+
+								<tr><td>2019-12-11 16:00:00+01:00</td><td>joe</td><td>1: stef</td></tr>
+
+								<tr><td>2019-12-11 18:05:00+01:00</td><td>bas</td><td>1: tim</td></tr>
+
+								<tr><td>2019-12-12 06:42:00+01:00</td><td>tim</td><td>1: joe</td></tr>
+
+								<tr><td>2019-12-12 16:05:00+01:00</td><td>tim</td><td>1: joe</td></tr>
+
+								<tr><td>2019-12-13 06:42:00+01:00</td><td>tim</td><td>1: bart</td></tr>
+
+								<tr><td>2019-12-13 15:30:00+01:00</td><td>tim</td><td>1: bart</td></tr>
+
+								<tr><td>2019-12-16 06:48:00+01:00</td><td>thomas</td><td>3: joost, joe, tim</td></tr>
+
+								<tr><td>2019-12-16 07:03:00+01:00</td><td>ruben</td><td>1: carsten</td></tr>
+
+								<tr><td>2019-12-16 18:10:00+01:00</td><td>ruben</td><td>2: carsten, tim</td></tr>
+
+								<tr><td>2019-12-17 06:46:00+01:00</td><td>bart</td><td>2: thomas, joost</td></tr>
+
+								<tr><td>2019-12-17 06:55:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-12-18 06:42:00+01:00</td><td>bas</td><td>1: thomas</td></tr>
+
+								<tr><td>2019-12-18 06:45:00+01:00</td><td>joost</td><td>1: bart</td></tr>
+
+								<tr><td>2019-12-18 16:00:00+01:00</td><td>joost</td><td>1: bart</td></tr>
+
+								<tr><td>2019-12-18 16:00:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-12-18 16:00:00+01:00</td><td>joe</td><td>1: tim</td></tr>
+
+								<tr><td>2019-12-18 18:00:00+01:00</td><td>bas</td><td>1: thomas</td></tr>
+
+								<tr><td>2019-12-19 07:03:00+01:00</td><td>bas</td><td>2: tim, ruben</td></tr>
+
+								<tr><td>2019-12-19 17:10:00+01:00</td><td>carsten</td><td>1: ruben</td></tr>
+
+								<tr><td>2019-12-19 18:10:00+01:00</td><td>bas</td><td>1: tim</td></tr>
+
+								<tr><td>2020-01-06 07:03:00+01:00</td><td>ruben</td><td>3: joe, bas, stef</td></tr>
+
+								<tr><td>2020-01-06 16:05:00+01:00</td><td>thomas</td><td>2: joost, tim</td></tr>
+
+								<tr><td>2020-01-06 18:00:00+01:00</td><td>ruben</td><td>3: joe, bas, stef</td></tr>
+
+								<tr><td>2020-01-07 06:42:00+01:00</td><td>tim</td><td>2: joe, thomas</td></tr>
+
+								<tr><td>2020-01-07 17:30:00+01:00</td><td>tim</td><td>2: joe, thomas</td></tr>
+
+								<tr><td>2020-01-08 06:48:00+01:00</td><td>joost</td><td>3: joe, thomas, tim</td></tr>
+
+								<tr><td>2020-01-08 16:05:00+01:00</td><td>joost</td><td>3: joe, thomas, tim</td></tr>
+
+								<tr><td>2020-01-09 06:48:00+01:00</td><td>joe</td><td>1: joost</td></tr>
+
+								<tr><td>2020-01-09 07:03:00+01:00</td><td>carsten</td><td>1: ruben</td></tr>
+
+								<tr><td>2020-01-09 16:00:00+01:00</td><td>joe</td><td>1: joost</td></tr>
+
+								<tr><td>2020-01-09 17:05:00+01:00</td><td>carsten</td><td>1: ruben</td></tr>
+
+								<tr><td>2020-01-10 06:42:00+01:00</td><td>joe</td><td>2: tim, bart</td></tr>
+
+								<tr><td>2020-01-10 06:55:00+01:00</td><td>stef</td><td>1: ruben</td></tr>
+
+								<tr><td>2020-01-10 15:30:00+01:00</td><td>joe</td><td>2: tim, bart</td></tr>
+
+								<tr><td>2020-01-10 16:00:00+01:00</td><td>stef</td><td>1: ruben</td></tr>
+
+								<tr><td>2020-01-13 06:45:00+01:00</td><td>stef</td><td>1: bas</td></tr>
+
+								<tr><td>2020-01-13 06:48:00+01:00</td><td>tim</td><td>2: joost, joe</td></tr>
+
+								<tr><td>2020-01-13 15:35:00+01:00</td><td>tim</td><td>2: joost, joe</td></tr>
+
+								<tr><td>2020-01-13 18:00:00+01:00</td><td>stef</td><td>1: bas</td></tr>
+
+								<tr><td>2020-01-14 06:45:00+01:00</td><td>thomas</td><td>3: joost, ruben, stef</td></tr>
+
+								<tr><td>2020-01-14 07:05:00+01:00</td><td>joe</td><td>2: tim, bas</td></tr>
+
+								<tr><td>2020-01-14 16:00:00+01:00</td><td>thomas</td><td>3: joost, ruben, stef</td></tr>
+
+								<tr><td>2020-01-14 16:05:00+01:00</td><td>carsten</td><td>1: ruben</td></tr>
+
+								<tr><td>2020-01-14 18:00:00+01:00</td><td>joe</td><td>2: tim, bas</td></tr>
+
+								<tr><td>2020-01-15 06:48:00+01:00</td><td>thomas</td><td>3: joe, joost, tim</td></tr>
+
+								<tr><td>2020-01-15 16:05:00+01:00</td><td>thomas</td><td>3: joe, joost, tim</td></tr>
+
+								<tr><td>2020-01-16 06:40:00+01:00</td><td>stef</td><td>1: joe</td></tr>
+
+								<tr><td>2020-01-16 06:45:00+01:00</td><td>bart</td><td>3: joost, ruben, thomas</td></tr>
+
+								<tr><td>2020-01-16 16:00:00+01:00</td><td>bart</td><td>3: joost, ruben, thomas</td></tr>
+
+								<tr><td>2020-01-16 17:30:00+01:00</td><td>stef</td><td>1: joe</td></tr>
+
+								<tr><td>2020-01-17 06:40:00+01:00</td><td>thomas</td><td>1: bart</td></tr>
+
+								<tr><td>2020-01-17 07:03:00+01:00</td><td>ruben</td><td>1: tim</td></tr>
+
+								<tr><td>2020-01-17 15:05:00+01:00</td><td>thomas</td><td>1: bart</td></tr>
+
+								<tr><td>2020-01-17 16:05:00+01:00</td><td>ruben</td><td>1: tim</td></tr>
+
+								<tr><td>2020-01-20 06:40:00+01:00</td><td>stef</td><td>1: bas</td></tr>
+
+								<tr><td>2020-01-20 06:48:00+01:00</td><td>tim</td><td>2: joe, joost</td></tr>
+
+								<tr><td>2020-01-20 16:00:00+01:00</td><td>tim</td><td>2: joe, joost</td></tr>
+
+								<tr><td>2020-01-20 18:00:00+01:00</td><td>stef</td><td>1: bas</td></tr>
+
+								<tr><td>2020-01-21 06:35:00+01:00</td><td>joost</td><td>1: stef</td></tr>
+
+								<tr><td>2020-01-21 06:42:00+01:00</td><td>joe</td><td>2: thomas, tim</td></tr>
+
+								<tr><td>2020-01-21 16:00:00+01:00</td><td>joost</td><td>1: stef</td></tr>
+
+								<tr><td>2020-01-21 18:00:00+01:00</td><td>joe</td><td>2: thomas, tim</td></tr>
+
+								<tr><td>2020-01-22 06:48:00+01:00</td><td>joe</td><td>2: thomas, joost</td></tr>
+
+								<tr><td>2020-01-22 07:03:00+01:00</td><td>bart</td><td>3: bas, stef, tim</td></tr>
+
+								<tr><td>2020-01-22 16:00:00+01:00</td><td>joe</td><td>2: thomas, joost</td></tr>
+
+								<tr><td>2020-01-22 18:00:00+01:00</td><td>bart</td><td>3: bas, stef, tim</td></tr>
+
+								<tr><td>2020-01-23 06:35:00+01:00</td><td>ruben</td><td>1: joost</td></tr>
+
+								<tr><td>2020-01-23 07:03:00+01:00</td><td>bas</td><td>3: joe, tim, stef</td></tr>
+
+								<tr><td>2020-01-23 16:00:00+01:00</td><td>ruben</td><td>1: joost</td></tr>
+
+								<tr><td>2020-01-23 18:00:00+01:00</td><td>bas</td><td>3: joe, tim, stef</td></tr>
+
+								<tr><td>2020-01-24 06:42:00+01:00</td><td>tim</td><td>2: thomas, bart</td></tr>
+
+								<tr><td>2020-01-24 15:30:00+01:00</td><td>tim</td><td>2: thomas, bart</td></tr>
+
+								<tr><td>2020-01-27 06:42:00+01:00</td><td>joe</td><td>2: thomas, tim</td></tr>
+
+								<tr><td>2020-01-27 16:00:00+01:00</td><td>joe</td><td>2: thomas, tim</td></tr>
+
+								<tr><td>2020-01-28 06:42:00+01:00</td><td>tim</td><td>2: thomas, joe</td></tr>
+
+								<tr><td>2020-01-28 18:15:00+01:00</td><td>tim</td><td>2: thomas, joe</td></tr>
+
+								<tr><td>2020-01-29 06:42:00+01:00</td><td>thomas</td><td>2: tim, joe</td></tr>
+
+								<tr><td>2020-01-29 16:00:00+01:00</td><td>thomas</td><td>2: joe, tim</td></tr>
+
+								<tr><td>2020-01-30 07:03:00+01:00</td><td>ruben</td><td>2: tim, joe</td></tr>
+
+								<tr><td>2020-01-30 18:00:00+01:00</td><td>ruben</td><td>2: tim, joe</td></tr>
+
+								<tr><td>2020-01-31 06:48:00+01:00</td><td>bart</td><td>3: thomas, tim, ruben</td></tr>
+
+								<tr><td>2020-01-31 15:30:00+01:00</td><td>bart</td><td>3: thomas, tim, ruben</td></tr>
+
+								</tbody>
+							</table>
+						</p>
+					</section>
+					<footer>
+						<h3>article footer h3</h3>
+						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sodales urna non odio egestas tempor. Nunc vel vehicula ante. Etiam bibendum iaculis libero, eget molestie nisl pharetra in. In semper consequat est, eu porta velit mollis nec. Curabitur posuere enim eget turpis feugiat tempor.</p>
+					</footer>
+				</article>
+<!--                 <aside>
+					<h3>aside</h3>
+					<p>Lorem</p>
+				</aside>
+ -->
+			</div> <!-- #main -->
+		</div> <!-- #main-container -->
+
+		<div class="footer-container">
+			<footer class="wrapper">
+				<h3>Tim van Werkhoven - 2020</h3>
+			</footer>
+		</div>
+
+		<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script> -->
+		<!-- <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script> -->
+
+		<script src="js/plugins.js"></script>
+		<script src="js/main.js"></script>
+		<script type="text/javascript">
+    Highcharts.chart('hc-balance', {
+		title: { text: 'Carpool balance' },
+		data: { table: 'hc-balance-data' },
+		chart: { type: 'column', zoomType: 'x' },
+		// xAxis: { type: 'datetime' },
+		yAxis: {
+          title: { text: 'Balance (€)' },
+          allowDecimals: false,
+          // title: { text: null },
+      	},
+      legend: { enabled: false },
+      // tooltip: { valueSuffix: ' MJ' },
+      plotOptions: {
+          column: { dataLabels: { enabled: true, format: '{y}' } }
+      },
+  });
+		</script>
+	</body>
+</html>
