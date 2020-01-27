@@ -10,6 +10,8 @@ from icalendar import Calendar
 import re
 import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+import csv
+import datetime
 
 # config should contain
 config = yaml.safe_load(open("utrechtcarpool.yaml"))
@@ -125,6 +127,30 @@ def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html'):
 
     with open('./web/index.html', 'w') as fd:
         fd.write(render)
+
+def update_csv(normics, csvpath="./calendar.csv"):
+    """
+    After normalization, append to existing CSV, overwriting old data in csv
+    with newer calendar data as follows:
+        - All events in CSV older than the oldest event in ICS: keep
+        - All events in CSV also in ICS: overwrite
+    The rationale is that events might have been deleted in the calendar which
+    we cannot detect from the ICS, so we simply overwrite everything from the
+    ics.
+    """
+        
+    # Read old file until we get new data
+    with open(csvpath,"rt") as csvfd:
+        spamreader = csv.reader(csvfd, delimiter=",", lineterminator = '\n')
+        csvdata = [r for r in spamreader if datetime.datetime.strptime(r[3], "%Y-%m-%d %H:%M:%S%z") < normics[0][3]]
+        
+    # @TODO: store list such that it can be retrieved
+
+    # Re-open file, truncate, write old data, than new data
+    with open(csvpath,"w") as csvfd:
+        spamwriter = csv.writer(csvfd, delimiter=",", lineterminator = '\n')
+        spamwriter.writerows(csvdata)
+        spamwriter.writerows(normics)
 
 def find_dest(lastevents):
     """
