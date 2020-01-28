@@ -6,11 +6,8 @@ Created on Tue Jan 21 21:28:10 2020
 @author: twerkhov
 """
 
-<<<<<<< HEAD
 import argparse
-=======
 import ast
->>>>>>> ca69672... Fix storing + retrieval of list of passengers
 from icalendar import Calendar
 import re
 import yaml
