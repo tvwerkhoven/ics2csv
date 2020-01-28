@@ -6,6 +6,7 @@ Created on Tue Jan 21 21:28:10 2020
 @author: twerkhov
 """
 
+import ast
 from icalendar import Calendar
 import re
 import yaml
@@ -145,22 +146,20 @@ def update_csv(events, csvpath="./calendar.csv"):
     try:
         with open(csvpath, "rt") as csvfd:
             spamreader = csv.reader(csvfd, delimiter=",", lineterminator = '\n')
-            # Read data, convert semicolumn-separated list of passengers to Python list
-            csvdata = [[r[0], r[1].split(";")] + r[2:] for r in spamreader if datetime.datetime.strptime(r[3], "%Y-%m-%d %H:%M:%S%z") < events[0][3]]
+            # Read data, use ast.literal_eval to convert stringified list back to Python list
+            # https://stackoverflow.com/questions/1894269/convert-string-representation-of-list-to-list
+            # TODO: ast.literal_eval could be slow code, maybe optimize later
+            csvdata = [[r[0], ast.literal_eval(r[1])] + r[2:] for r in spamreader if datetime.datetime.strptime(r[3], "%Y-%m-%d %H:%M:%S%z") < events[0][3]]
             # Prepend existing events to new data
             events = csvdata + events
     except FileNotFoundError:
         pass
     
-    # @TODO: store list such that it can be retrieved
 
     # Re-open file, truncate, write all data
     with open(csvpath, "w") as csvfd:
         spamwriter = csv.writer(csvfd, delimiter=",", lineterminator = '\n')
-        for l in events:
-            # Write data, convert Python list of passengers to semicolumn-separated string
-            l[1] = ";".join(l[1])
-            spamwriter.writerow(l)
+        spamwriter.writerows(events)
 
     return events
 
