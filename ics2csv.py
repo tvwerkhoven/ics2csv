@@ -51,7 +51,7 @@ def get_driver_passengers(topic):
     driver = names[1]
     passengers = names[2:]
         
-    return driver, passengers
+    return [driver, passengers]
 
 def get_location(location, time):
     """
@@ -69,22 +69,24 @@ def get_location(location, time):
     loc = location.lower()
     for v in validlocs:
         if v in loc:
-            # If valid location found, return immediately
+            # If valid location found, return immediately, we only accept 
+            # one location match
             return v
     # If nothing found, return default location
     return locdefault
 
 def normalize_ics(file='calendar.ics'):
     """
-    Given ICS file, normalize for carpool accounting to fixed set of drivers, times, locations.
+    Given ICS file, normalize for carpool accounting to fixed set of drivers,
+    #times, locations.
     """
     with open(file,'rb') as g:
         gcal = Calendar.from_ical(g.read())
         # Only look at events (name == 'VEVENT') that are not cancelled (STATUS != 'TRANSPARENT')
         # Get people from SUMMARY, get valid location from LOCATION/DTSTART
         normed = [get_driver_passengers(c.get('SUMMARY')) +
-                (get_location(c.get('LOCATION'),
-                c.get('DTSTART')),c.get('DTSTART').dt) 
+                [get_location(c.get('LOCATION'),
+                c.get('DTSTART')),c.get('DTSTART').dt] 
                     for c in gcal.walk() 
                         if (c.name == 'VEVENT' and 
                             c.get('TRANSP') != 'TRANSPARENT')]
@@ -128,7 +130,7 @@ def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html'):
     with open('./web/index.html', 'w') as fd:
         fd.write(render)
 
-def update_csv(normics, csvpath="./calendar.csv"):
+def update_csv(lastevents, csvpath="./calendar.csv"):
     """
     After normalization, append to existing CSV, overwriting old data in csv
     with newer calendar data as follows:
@@ -140,17 +142,25 @@ def update_csv(normics, csvpath="./calendar.csv"):
     """
         
     # Read old file until we get new data
-    with open(csvpath,"rt") as csvfd:
-        spamreader = csv.reader(csvfd, delimiter=",", lineterminator = '\n')
-        csvdata = [r for r in spamreader if datetime.datetime.strptime(r[3], "%Y-%m-%d %H:%M:%S%z") < normics[0][3]]
-        
+    try:
+        with open(csvpath, "rt") as csvfd:
+            spamreader = csv.reader(csvfd, delimiter=",", lineterminator = '\n')
+            # Read data, convert semicolumn-separated list of passengers to Python list
+            csvdata = [[r[0], r[1].split(";")] + r[2:] for r in spamreader if datetime.datetime.strptime(r[3], "%Y-%m-%d %H:%M:%S%z") < lastevents[0][3]]
+            # Prepend existing events to new data
+            lastevents = csvdata + lastevents
+    except FileNotFoundError:
+        pass
+    
     # @TODO: store list such that it can be retrieved
 
-    # Re-open file, truncate, write old data, than new data
-    with open(csvpath,"w") as csvfd:
+    # Re-open file, truncate, write all data
+    with open(csvpath, "w") as csvfd:
         spamwriter = csv.writer(csvfd, delimiter=",", lineterminator = '\n')
-        spamwriter.writerows(csvdata)
-        spamwriter.writerows(normics)
+        for l in lastevents:
+            # Write data, convert Python list of passengers to semicolumn-separated string
+            l[1] = ";".join(l[1])
+            spamwriter.writerow(l)
 
 def find_dest(lastevents):
     """
