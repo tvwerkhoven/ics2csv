@@ -6,6 +6,7 @@ Created on Tue Jan 21 21:28:10 2020
 @author: twerkhov
 """
 
+import argparse
 from icalendar import Calendar
 import re
 import yaml
@@ -18,6 +19,8 @@ config = yaml.safe_load(open("utrechtcarpool.yaml"))
 calfile = config['calfile']
 validamlocs = config['validamlocs']
 validpmlocs = config['validpmlocs']
+defaultamloc = "UNKNOWN-EVERDINGEN"
+defaultpmloc = "UNKNOWN-B7"
 
 RE_TOPIC_SPLIT = re.compile('[^a-zA-Z]+')
 def get_driver_passengers(topic):
@@ -108,7 +111,7 @@ def carpool_account(lastevents, tripcost=16):
             balance[p] = balance.get(p,0) - tripcost/npers
     return balance
 
-def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html'):
+def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html', htmlfile='./web/index.html'):
     """
     Given normalized ICS input (driver, passengers, departure location, 
     start time), export results to HTML report for human review.
@@ -127,7 +130,7 @@ def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html'):
         # stats30daily=stats30daily,
         # stats30alltime=stats30alltime)
 
-    with open('./web/index.html', 'w') as fd:
+    with open(htmlfile, 'w') as fd:
         fd.write(render)
 
 def update_csv(events, csvpath="./calendar.csv"):
@@ -175,10 +178,19 @@ def find_dest(lastevents):
     """
     pass
 
-lastevents = normalize_ics(calfile)
-allevents = update_csv(lastevents)
+# Parse commandline arguments
+parser = argparse.ArgumentParser(description="Do carpool balance acocunting on properly-formatted calendar events (ics) using a csv file as intermediate cache for items no longer in calendar")
+parser.add_argument("calfile", help="Calendar file to parse")
+parser.add_argument("csvfile", help="CSV file to use as cache")
+parser.add_argument("--htmltemplate", help="HTML template to use for export")
+parser.add_argument("--htmlfile", help="HTML file to export template to")
+args = parser.parse_args()
+
+lastevents = normalize_ics(args.calfile)
+allevents = update_csv(lastevents, args.csvfile)
 balance = carpool_account(allevents)
-export_as_html(lastevents, balance)
+export_as_html(lastevents, balance, htmltemplate=args.htmltemplate, htmlfile=args.htmlfile)
 
 # matchedics = find_dest(lastevents)
 # carpool_account_distance(lastevents)
+
