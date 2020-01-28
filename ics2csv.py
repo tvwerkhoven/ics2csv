@@ -19,6 +19,7 @@ calfile = config['calfile']
 validamlocs = config['validamlocs']
 validpmlocs = config['validpmlocs']
 
+RE_TOPIC_SPLIT = re.compile('[^a-zA-Z]+')
 def get_driver_passengers(topic):
     """
     From event topic (summary), get driver and passenger
@@ -41,7 +42,7 @@ def get_driver_passengers(topic):
     # Regexp pattern to strip non-alphanumeric characters
     # https://stackoverflow.com/questions/1276764/stripping-everything-but-alphanumeric-chars-from-a-string-in-python
     # Split topic by non-alphanumeric characters - https://docs.python.org/2/library/re.html
-    names = re.split('[^a-zA-Z]+',topic.lower(), re.UNICODE)
+    names = RE_TOPIC_SPLIT.split(topic.lower(), re.UNICODE)
 
     # Remove empty hits in case string ends in non-alphanumeric char (e.g. 
     # space). Alternatively we could strip() the string using all 
