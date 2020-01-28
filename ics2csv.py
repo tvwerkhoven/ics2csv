@@ -77,8 +77,7 @@ def get_location(location, time):
 
 def normalize_ics(file='calendar.ics'):
     """
-    Given ICS file, normalize for carpool accounting to fixed set of drivers,
-    #times, locations.
+    Given ICS file, normalize for carpool accounting to fixed set of drivers, times, locations.
     """
     with open(file,'rb') as g:
         gcal = Calendar.from_ical(g.read())
@@ -130,7 +129,7 @@ def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html'):
     with open('./web/index.html', 'w') as fd:
         fd.write(render)
 
-def update_csv(lastevents, csvpath="./calendar.csv"):
+def update_csv(events, csvpath="./calendar.csv"):
     """
     After normalization, append to existing CSV, overwriting old data in csv
     with newer calendar data as follows:
@@ -146,9 +145,9 @@ def update_csv(lastevents, csvpath="./calendar.csv"):
         with open(csvpath, "rt") as csvfd:
             spamreader = csv.reader(csvfd, delimiter=",", lineterminator = '\n')
             # Read data, convert semicolumn-separated list of passengers to Python list
-            csvdata = [[r[0], r[1].split(";")] + r[2:] for r in spamreader if datetime.datetime.strptime(r[3], "%Y-%m-%d %H:%M:%S%z") < lastevents[0][3]]
+            csvdata = [[r[0], r[1].split(";")] + r[2:] for r in spamreader if datetime.datetime.strptime(r[3], "%Y-%m-%d %H:%M:%S%z") < events[0][3]]
             # Prepend existing events to new data
-            lastevents = csvdata + lastevents
+            events = csvdata + events
     except FileNotFoundError:
         pass
     
@@ -157,10 +156,12 @@ def update_csv(lastevents, csvpath="./calendar.csv"):
     # Re-open file, truncate, write all data
     with open(csvpath, "w") as csvfd:
         spamwriter = csv.writer(csvfd, delimiter=",", lineterminator = '\n')
-        for l in lastevents:
+        for l in events:
             # Write data, convert Python list of passengers to semicolumn-separated string
             l[1] = ";".join(l[1])
             spamwriter.writerow(l)
+
+    return events
 
 def find_dest(lastevents):
     """
@@ -174,10 +175,9 @@ def find_dest(lastevents):
     pass
 
 lastevents = normalize_ics(calfile)
-balance = carpool_account(lastevents)
-print(lastevents[0])
+allevents = update_csv(lastevents)
+balance = carpool_account(allevents)
 export_as_html(lastevents, balance)
-
 
 # matchedics = find_dest(lastevents)
 # carpool_account_distance(lastevents)
