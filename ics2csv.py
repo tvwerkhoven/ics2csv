@@ -174,8 +174,51 @@ def find_dest(lastevents):
     
     Typically a driver departs from location X in the morning, then departs
     from locaiton Y in the afternoon, meaning the trip was X->Y and Y->X.
+
+    Plan:
+    1.sort all events by date and add a unique ID (index nr)
+    2.loop over events per day
+    2a.what to do with first pm event? -> ideas for dbs storage
+    3.Every day should contain even number of events (back/forth)
+    4.find all the unique drivers and match location of events via driver
+    5.link source/dest via added ID to the event
+    
     """
-    pass
+    sorted_events =  sorted(lastevents, key=lambda event: event[3])
+    number_days = sorted_events[-1][3] - sorted_events[0][3]
+    number_days = number_days.days +2
+    day_list = [sorted_events[0][3].date()-datetime.timedelta(days=1) + datetime.timedelta(days=x)
+                for x in range(number_days)]
+    #need to add unique tag to events in order to find them back later
+    sorted_events = list(zip(sorted_events, range(len(sorted_events))))
+    start_dest_pairs = []
+    
+    for day in day_list:
+        events_on_day = [e for e in sorted_events if e[0][3].date() == day]
+        if len(events_on_day)%2==0 and len(events_on_day)>0:
+            drivers = set([event[0][0] for event in events_on_day])
+            #Assume a driver only goes back/forth once a day
+            for driver in drivers:
+                carpool_set = [event for event in events_on_day if event[0][0]==driver]
+                if len(carpool_set)==2:
+                    startID, destID = carpool_set[0][1], carpool_set[1][1]
+                    start, dest = carpool_set[0][0][2], carpool_set[1][0][2]
+                    start_dest_pairs.append([startID, [start,dest]])
+                    start_dest_pairs.append([destID, [dest,start]])
+                else:
+                    print(f'Driver {driver} has more then 2 events on {day}')
+    sorted_events = [list(event[0]) for event in sorted_events] # remove the IDs again and make mutable
+    
+    if len(start_dest_pairs) == len(sorted_events):
+        print('All rides found!')
+    else:
+        print('{} missing destinations'.format(len(sorted_events)-len(start_dest_pairs)))
+        print([ID[0] for ID in start_dest_pairs])
+        
+    for ID, [start, dest] in start_dest_pairs:
+        sorted_events[ID].append([start, dest])
+
+    return sorted_events
 
 # Parse commandline arguments
 parser = argparse.ArgumentParser(description="Do carpool balance acocunting on properly-formatted calendar events (ics) using a csv file as intermediate cache for items no longer in calendar")
