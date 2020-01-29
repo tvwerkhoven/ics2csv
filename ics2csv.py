@@ -152,7 +152,9 @@ def update_csv(events, csvpath="./calendar.csv"):
             # Read data, use ast.literal_eval to convert stringified list back to Python list
             # https://stackoverflow.com/questions/1894269/convert-string-representation-of-list-to-list
             # TODO: ast.literal_eval could be slow code, maybe optimize later
-            csvdata = [[r[0], ast.literal_eval(r[1])] + r[2:] for r in spamreader if datetime.datetime.strptime(r[3], "%Y-%m-%d %H:%M:%S%z") < events[0][3]]
+            csvdata = [[r[0], ast.literal_eval(r[1])] + [r[2], datetime.datetime.strptime(r[3], "%Y-%m-%d %H:%M:%S%z")]
+                for r in spamreader 
+                if datetime.datetime.strptime(r[3], "%Y-%m-%d %H:%M:%S%z") < events[0][3]]
             # Prepend existing events to new data
             events = csvdata + events
     except FileNotFoundError:
