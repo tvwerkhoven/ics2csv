@@ -16,7 +16,7 @@ import csv
 import datetime
 
 # config should contain
-config = yaml.safe_load(open("utrechtcarpool.yaml"))
+config = yaml.safe_load(open(r"./sample/carpool-anon.yaml"))
 calfile = config['calfile']
 validamlocs = config['validamlocs']
 validpmlocs = config['validpmlocs']
@@ -197,25 +197,34 @@ def find_dest(lastevents):
     
     for day in day_list:
         events_on_day = [e for e in sorted_events if e[0][3].date() == day]
-        if len(events_on_day)%2==0 and len(events_on_day)>0:
-            drivers = set([event[0][0] for event in events_on_day])
-            #Assume a driver only goes back/forth once a day
-            for driver in drivers:
-                carpool_set = [event for event in events_on_day if event[0][0]==driver]
-                if len(carpool_set)==2:
-                    startID, destID = carpool_set[0][1], carpool_set[1][1]
-                    start, dest = carpool_set[0][0][2], carpool_set[1][0][2]
-                    start_dest_pairs.append([startID, [start,dest]])
-                    start_dest_pairs.append([destID, [dest,start]])
-                else:
-                    print(f'Driver {driver} has more then 2 events on {day}')
+        drivers = set([event[0][0] for event in events_on_day])
+        #Assume a driver only goes back/forth once a day
+        for driver in drivers:
+            carpool_set = [event for event in events_on_day if event[0][0]==driver]
+            if len(carpool_set)==2:
+                #most common back/forth
+                startID, destID = carpool_set[0][1], carpool_set[1][1]
+                start, dest = carpool_set[0][0][2], carpool_set[1][0][2]
+                start_dest_pairs.append([startID, [start,dest]])
+                start_dest_pairs.append([destID, [dest,start]])
+            elif len(carpool_set)>2:
+                #driver has logged >2 rides, not possible -> needs fix
+                print(f'Driver {driver} more then 2 events on {day}')
+                print(carpool_set)
+            elif len(carpool_set)==1:
+                #only one ride/day:
+                #1. sloppy registration - send request to driver for fix?
+                #2. only 1 ride was shared -> have to make assumptions on start/destination based on driver+passager
+                print(f'Driver {driver} one event on {day}')
+                print(carpool_set)
+                                
     sorted_events = [list(event[0]) for event in sorted_events] # remove the IDs again and make mutable
     
     if len(start_dest_pairs) == len(sorted_events):
         print('All rides found!')
     else:
         print('{} missing destinations'.format(len(sorted_events)-len(start_dest_pairs)))
-        print([ID[0] for ID in start_dest_pairs])
+        #print([ID[0] for ID in start_dest_pairs])
         
     for ID, [start, dest] in start_dest_pairs:
         sorted_events[ID].append([start, dest])
@@ -230,11 +239,13 @@ parser.add_argument("--htmltemplate", help="HTML template to use for export")
 parser.add_argument("--htmlfile", help="HTML file to export template to")
 args = parser.parse_args()
 
-lastevents = normalize_ics(args.calfile)
+##lastevents = normalize_ics(args.calfile)
 allevents = update_csv(lastevents, args.csvfile)
 balance = carpool_account(allevents)
 export_as_html(lastevents, balance, htmltemplate=args.htmltemplate, htmlfile=args.htmlfile)
 
-# matchedics = find_dest(lastevents)
-# carpool_account_distance(lastevents)
+# Interactive use with YAML file:
+#lastevents = normalize_ics(calfile)
+#lastevents = find_dest(lastevents)
+#carpool_account_distance(lastevents)
 
