@@ -3,7 +3,35 @@
 """
 Created on Tue Jan 21 21:28:10 2020
 
-@author: twerkhov
+# About
+
+Do carpool accounting for a group of carpoolers to determine who should drive 
+when. Given an ICS file, parse event subjects reading out carpool 
+appointments, then calculate accounting and report results as html page.
+
+# Calendar events
+
+Event subjects can contain two type of data:
+1. Carpool appointment: "Carpool <driver> <passenger1> [passengerN]"
+2. Balance transfer: "Transfer <creditor> <debtor> <amount in EUR>"
+
+# Data structure
+
+Events are parsed and stored in OrderedDict as follows:
+
+<date> : {'type': 'carpool', 
+    'driver': '<driver>', 
+    'passengers': '<list of passengers>', 
+    'location': '<carpool departure location>',
+    'destination': '<calculated destination location>'
+    }
+
+<date> : {'type': 'transfer', 
+    'creditor': '<person>', 
+    'debtor': '<person>', 
+    'amount': '<transfer amount in EUR>'
+    }
+
 """
 
 import argparse
