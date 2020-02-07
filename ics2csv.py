@@ -41,7 +41,9 @@ import re
 import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import csv
+import json
 import datetime
+from collections import OrderedDict
 
 # config should contain
 config = yaml.safe_load(open(r"./sample/carpool-anon.yaml"))
@@ -265,15 +267,40 @@ parser.add_argument("calfile", help="Calendar file to parse")
 parser.add_argument("csvfile", help="CSV file to use as cache")
 parser.add_argument("--htmltemplate", help="HTML template to use for export")
 parser.add_argument("--htmlfile", help="HTML file to export template to")
-args = parser.parse_args()
+# args = parser.parse_args()
 
 ##lastevents = normalize_ics(args.calfile)
-allevents = update_csv(lastevents, args.csvfile)
-balance = carpool_account(allevents)
-export_as_html(lastevents, balance, htmltemplate=args.htmltemplate, htmlfile=args.htmlfile)
+# allevents = update_csv(lastevents, args.csvfile)
+# balance = carpool_account(allevents)
+# export_as_html(lastevents, balance, htmltemplate=args.htmltemplate, htmlfile=args.htmlfile)
 
 # Interactive use with YAML file:
 #lastevents = normalize_ics(calfile)
 #lastevents = find_dest(lastevents)
 #carpool_account_distance(lastevents)
 
+
+# https://stackoverflow.com/questions/11875770/how-to-overcome-datetime-datetime-not-json-serializable
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime.datetime):
+            print ("test")
+            return o.isoformat()
+
+        return json.JSONEncoder.default(self, o)
+
+# def json_serial(obj):
+#     """JSON serializer for objects not serializable by default json code"""
+
+#     if isinstance(obj, (datetime.datetime, datetime.date)):
+#         return obj.isoformat()
+#     raise TypeError ("Type %s not serializable" % type(obj))
+
+events = OrderedDict()
+events[datetime.datetime(2020,1,1,8,0)] = {'type': 'carpool', 'driver': 'Bob', 'passengers': ['Alice', 'Charlie'], 'location': 'home'}
+events[datetime.datetime(2020,1,1,18,0)] = {'type': 'carpool', 'driver': 'Bob', 'passengers': ['Alice', 'Charlie'], 'location': 'work'}
+events[datetime.datetime(2020,1,2,7,0)] = {'type': 'carpool', 'driver': 'Alice', 'passengers': ['Bob', 'Charlie'], 'location': 'home'}
+events[datetime.datetime(2020,1,2,16,0)] = {'type': 'carpool', 'driver': 'Alice', 'passengers': ['Bob', 'Charlie'], 'location': 'work'}
+
+with open('./sample/calendar-anon.json', 'w'):
+    json.dumps(events, cls=str)
