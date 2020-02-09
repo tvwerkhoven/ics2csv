@@ -289,6 +289,47 @@ class DateTimeEncoder(json.JSONEncoder):
 
         return json.JSONEncoder.default(self, o)
 
+import pickle
+# https://stackoverflow.com/questions/28079221/json-serializing-non-string-dictionary-keys
+class PythonObjectEncoder(json.JSONEncoder):
+    def default(self, obj):
+        return {'_python_object': pickle.dumps(obj).decode('latin1')}
+    def encode(self, obj):
+        if isinstance(obj, dict):
+            return super(PythonObjectEncoder, self).encode(pickle.dumps(obj).decode('latin1'))
+        else:
+            return super(PythonObjectEncoder, self).encode(obj)
+
+class DatesToStrings(json.JSONEncoder):
+    def encode(self, obj):
+        # if isinstance(obj, dict):
+        #     def transform_date(o):
+        #         return self.encode(o.isoformat() if isinstance(o, datetime.datetime) else o)
+        #     i= {transform_date(k): transform_date(v) for k, v in obj.items()}
+        #     # print(i)
+        #     return i
+        # else:
+        #     return obj
+        if isinstance(obj, dict):
+            def transform_date(o):
+                return self.encode(o.isoformat() if isinstance(o, datetime.datetime) else o)
+            return {transform_date(k): transform_date(v) for k, v in obj.items()}
+            # return super(DatesToStrings, self).encode(obj)
+        else:
+            return super(DatesToStrings, self).encode(obj)
+
+# https://stackoverflow.com/questions/3721357/how-to-dump-a-python-dictionary-to-json-when-keys-are-non-trivial-objects
+class MonkeyObjectEncoder(json.JSONEncoder):
+    def encode_basestring(o):
+        """
+        Monkey-patching Python's json serializer so it can serialize keys that are not string!
+        You can monkey patch the ascii one the same way.
+        """
+        if isinstance(o, datetime.datetime):
+            print('hello')
+            return str(o)
+        return json.JSONEncoder.encode_basestring(o)
+
 # def json_serial(obj):
 #     """JSON serializer for objects not serializable by default json code"""
 
@@ -303,4 +344,6 @@ events[datetime.datetime(2020,1,2,7,0)] = {'type': 'carpool', 'driver': 'Alice',
 events[datetime.datetime(2020,1,2,16,0)] = {'type': 'carpool', 'driver': 'Alice', 'passengers': ['Bob', 'Charlie'], 'location': 'work'}
 
 with open('./sample/calendar-anon.json', 'w'):
-    json.dumps(events, cls=str)
+    json.dumps(events, cls=MonkeyObjectEncoder)
+    print(events)
+
