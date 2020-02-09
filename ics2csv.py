@@ -191,7 +191,7 @@ def carpool_account(allevents):
 
     return balance
 
-def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html', htmlfile='./web/index.html'):
+def export_as_html(allevents, balance, htmltemplate='./web/index_templ.html', htmlfile='./web/index.html'):
     """
     Given normalized ICS input (driver, passengers, departure location, 
     start time), export results to HTML report for human review.
@@ -204,7 +204,7 @@ def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html', h
 
     template = env.get_template(htmltemplate)
     render = template.render(
-        lastevents=lastevents,
+        allevents=allevents,
         balance=balance)
         # activetop10=stats[30]['active']['allday'],
         # stats30daily=stats30daily,
@@ -377,8 +377,7 @@ args = parser.parse_args()
 newevents = normalize_ics(args.calfile)
 allevents = updatedata(newevents)
 balance = carpool_account(allevents)
-
-# export_as_html(lastevents, balance, htmltemplate=args.htmltemplate, htmlfile=args.htmlfile)
+export_as_html(allevents, balance)#, htmltemplate=args.htmltemplate, htmlfile=args.htmlfile)
 
 # Interactive use with YAML file:
 #lastevents = normalize_ics(calfile)

@@ -84,12 +84,12 @@
 							<table>
 								<thead>
 									<tr>
-										<th>Date</th><th>Driver</th><th>Passengers</th>
+										<th>Date</th><th>Driver (Δbalance)</th><th>Passengers (Δbalance)</th>
 									</tr>
 								</thead>
 								<tbody>
-{% for i in lastevents %}
-								<tr><td>{{i[3]}}</td><td>{{i[0]}}</td><td>{{i[1]|length}}: {{i[1]|join(', ')}}</td></tr>
+{% for k,v in allevents.items() %}
+								<tr><td>{{k.strftime('%Y-%m-%d %H:%M')}}</td><td>{{v['driver']}} ({{"%.2f"|format(v['tripcost'] - v['tripcost']/(1+v['passengers']|length))}})</td><td>{{v['passengers']|length}}: {{v['passengers']|join(', ')}} ({{"%.2f"|format(-v['tripcost']/(1+v['passengers']|length))}})</td></tr>
 {% endfor %}
 								</tbody>
 							</table>
