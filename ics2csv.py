@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jan 21 21:28:10 2020
@@ -17,7 +17,11 @@ Event subjects can contain two type of data:
 
 # Data structure
 
-Events are parsed and stored in OrderedDict as follows:
+Events are parsed and stored in a OrderedDict. Although dicts are ordered 
+since python3.7, OrderedDict gives us compatibility for all python3. See also
+https://stackoverflow.com/questions/50872498/will-ordereddict-become-redundant-in-python-3-7
+
+Example data:
 
 <date> : {'type': 'carpool', 
     'driver': '<driver>', 
@@ -343,14 +347,30 @@ events[datetime.datetime(2020,1,1,18,0)] = {'type': 'carpool', 'driver': 'Bob', 
 events[datetime.datetime(2020,1,2,7,0)] = {'type': 'carpool', 'driver': 'Alice', 'passengers': ['Bob', 'Charlie'], 'location': 'home'}
 events[datetime.datetime(2020,1,2,16,0)] = {'type': 'carpool', 'driver': 'Alice', 'passengers': ['Bob', 'Charlie'], 'location': 'work'}
 
-with open('./sample/calendar-anon.json', 'w') as fd:
-    # json.dump(events, fd, cls=DatesToStrings)
-    print(events)
+# with open('./sample/calendar-anon.json', 'w') as fd:
+#     json.dump(events, fd, cls=DatesToStrings)
+#     print(events)
 
 
 def storedata(obj, file='./sample/calendar-anon2.json'):
+    """
+    Store dict of carpool data, convert datetime to string for 
+    json compatibility
+    """
     with open(file, 'w') as fd:
-        json.dump({str(k):v for k,v in obj.items()}, fd)
+        json.dump({str(k):v for k,v in obj.items()}, fd, indent=1)
 
+def loaddata(file):
+    """
+    Load carpool data json, convert str back to datetime
+    """
+    with open(file, 'r') as fd:
+        events = json.load(fd)
+    return OrderedDict({datetime.datetime.fromisoformat(k):v for k,v in events.items()})
 
-storedata(events)
+print ("storedata")
+print(events)
+storedata(events, './sample/calendar-anon2.json')
+print ("loaddata")
+e = loaddata('./sample/calendar-anon2.json')
+print(e == events)
