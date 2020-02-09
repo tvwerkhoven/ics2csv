@@ -84,12 +84,29 @@
 							<table>
 								<thead>
 									<tr>
-										<th>Date</th><th>Driver (Δbalance)</th><th>Passengers (Δbalance)</th>
+										<th>Date</th><th>Driver (Δbalance)</th><th>Passengers (Δbalance)</th><th>Comments</th>
 									</tr>
 								</thead>
 								<tbody>
 {% for k,v in allevents.items() %}
-								<tr><td>{{k.strftime('%Y-%m-%d %H:%M')}}</td><td>{{v['driver']}} ({{"%.2f"|format(v['tripcost'] - v['tripcost']/(1+v['passengers']|length))}})</td><td>{{v['passengers']|length}}: {{v['passengers']|join(', ')}} ({{"%.2f"|format(-v['tripcost']/(1+v['passengers']|length))}})</td></tr>
+								<tr>
+									<td>{{k.strftime('%Y-%m-%d %H:%M')}}</td>
+									<td>
+									{% if v['type'] == 'carpool' %}
+										{{v['driver']}} (+{{"%.2f"|format(v['tripcost'] - v['tripcost']/(1+v['passengers']|length))}})
+									{% elif v['type'] == 'transfer' %}
+										{{v['debtor']}} (-{{"%.2f"|format(v['amount'])}})
+									{% endif %}
+									</td>
+									<td>
+									{% if v['type'] == 'carpool' %}
+										{{v['passengers']|length}}: {{v['passengers']|join(', ')}} ({{"%.2f"|format(-v['tripcost']/(1+v['passengers']|length))}})
+									{% elif v['type'] == 'transfer' %}
+										{{v['creditor']}} (+{{"%.2f"|format(v['amount'])}})
+									{% endif %}
+									</td>
+									<td>{{v['comments']}}</td>
+								</tr>
 {% endfor %}
 								</tbody>
 							</table>

@@ -65,11 +65,12 @@ def normalize_ics(file='calendar.ics'):
 
     with open(file,'rb') as g:
         gcal = Calendar.from_ical(g.read())
+        uniquepeople = set()
         for c in gcal.walk():
             # Only look at events (name == 'VEVENT') that are not cancelled (STATUS != 'TRANSPARENT')
             # Get people from SUMMARY, get valid location from LOCATION/DTSTART
             if (c.name == 'VEVENT' and c.get('TRANSP') != 'TRANSPARENT'):
-                events[c.get('DTSTART').dt] = icsparse_event(c)
+                events[c.get('DTSTART').dt] = icsparse_event(c, uniquepeople)
 
     return events
 
@@ -77,15 +78,17 @@ def normalize_ics(file='calendar.ics'):
 RE_TOPIC_SPLIT_CARPOOL = re.compile('[^a-zA-Z]+')
 RE_TOPIC_SPLIT_TRANSFER = re.compile('[\W]+')
 
-def icsparse_event(c):
-    """
-    Parse single calendar event
+def icsparse_event(c, uniquepeople):
+    """ 
+    Parse single calendar event. uniquepeople set is used to track if new 
+    people have joined, which could indicate a typo.
     """
     summary, location, time = c.get('SUMMARY'), c.get('LOCATION'), c.get('DTSTART')
 
     # Look for carpool match in first word
     event_type = summary.split()[0].lower()
     if ('carpool' in event_type):
+
         try:
             words = icsparse_event_topic_split(summary, RE_TOPIC_SPLIT_CARPOOL)
             driver, passengers = words[1], words[2:]
@@ -93,11 +96,23 @@ def icsparse_event(c):
             raise ValueError("Carpool event syntax not understood: {}".format(e))
 
         origin = icsparse_event_get_location(location, time)
+
+        # Check for issues
+        comments = ''
+        if driver not in uniquepeople:
+            uniquepeople.add(driver)
+            comments += ' New driver ({})!'.format(driver)
+        for p in passengers:
+            if p not in uniquepeople:
+                uniquepeople.add(p)
+                comments += ' New passenger ({})!'.format(p)
+
         return {'type': 'carpool',
                 'driver': driver,
                 'passengers': passengers,
                 'origin': origin,
-                'tripcost': CFG_TRIPCOST}
+                'tripcost': CFG_TRIPCOST,
+                'comments': comments}
     
     elif ('transfer' in event_type):
         try:
@@ -108,7 +123,8 @@ def icsparse_event(c):
         return {'type': 'transfer',
                 'debtor': debtor,
                 'creditor': creditor,
-                'amount': amount}
+                'amount': float(amount),
+                'comments': 'Cash transfer'}
     else:
         raise ValueError("Event syntax not understood: {}".format(summary))
 
