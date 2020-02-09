@@ -26,7 +26,7 @@ Example data:
 <date> : {'type': 'carpool', 
     'driver': '<driver>', 
     'passengers': '<list of passengers>', 
-    'location': '<carpool departure location>',
+    'origin': '<carpool departure location>',
     'destination': '<calculated destination location>'
     }
 
@@ -39,17 +39,15 @@ Example data:
 """
 
 import argparse
-import ast
 from icalendar import Calendar
 import re
 import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-import csv
 import json
 import datetime
 from collections import OrderedDict
 
-# config should contain
+# Load config to parse data
 config = yaml.safe_load(open(r"./sample/carpool-anon.yaml"))
 calfile = config['calfile']
 validamlocs = config['validamlocs']
@@ -57,19 +55,74 @@ validpmlocs = config['validpmlocs']
 defaultamloc = "UNKNOWN-EVERDINGEN"
 defaultpmloc = "UNKNOWN-B7"
 
-RE_TOPIC_SPLIT = re.compile('[^a-zA-Z]+')
-def get_driver_passengers(topic):
+def normalize_ics(file='calendar.ics'):
     """
-    From event topic (summary), get driver and passenger
+    Given ICS file, normalize for carpool accounting to fixed set of drivers, 
+    times, locations.
+    """
+    events = OrderedDict()
+
+    with open(file,'rb') as g:
+        gcal = Calendar.from_ical(g.read())
+        for c in gcal.walk():
+            # Only look at events (name == 'VEVENT') that are not cancelled (STATUS != 'TRANSPARENT')
+            # Get people from SUMMARY, get valid location from LOCATION/DTSTART
+            if (c.name == 'VEVENT' and c.get('TRANSP') != 'TRANSPARENT'):
+                events[c.get('DTSTART').dt] = icsparse_event(c)
+
+    return events
+
+# Regexps to use for splitting topics. Define global to allow re-use.
+RE_TOPIC_SPLIT_CARPOOL = re.compile('[^a-zA-Z]+')
+RE_TOPIC_SPLIT_TRANSFER = re.compile('[\W]+')
+
+def icsparse_event(c):
+    """
+    Parse single calendar event
+    """
+    summary, location, time = c.get('SUMMARY'), c.get('LOCATION'), c.get('DTSTART')
+
+    # Look for carpool match in first word
+    event_type = summary.split()[0].lower()
+    if ('carpool' in event_type):
+        try:
+            words = icsparse_event_topic_split(summary, RE_TOPIC_SPLIT_CARPOOL)
+            driver, passengers = words[1], words[2:]
+        except Exception as e:
+            raise ValueError("Carpool event syntax not understood: {}".format(e))
+
+        origin = icsparse_event_get_location(location, time)
+        return {'type': 'carpool',
+                'driver': driver,
+                'passengers': passengers,
+                'origin': origin}
     
-    Expected syntax:
+    elif ('transfer' in event_type):
+        try:
+            words = icsparse_event_topic_split(summary, RE_TOPIC_SPLIT_TRANSFER)
+            debtor, creditor, amount = words[1:]
+        except:
+            raise ValueError("Transfer event syntax not understood: {}".format(summary))
+        return {'type': 'transfer',
+                'debtor': debtor,
+                'creditor': creditor,
+                'amount': amount}
+    else:
+        raise ValueError("Event syntax not understood: {}".format(summary))
+
+def icsparse_event_topic_split(topic, resplit):
+    """
+    From event topic (summary), split in words, e.g. to get driver and 
+    passenger. Generalized (via resplit) to also work for other syntaxes.
+    
+    Expected carpool syntax:
         'carpool([\W]+([\w]+))+'
     e.g.
-        Carpool - Peter + Martin + Wolfgang
-        carpool Peter    Martin Wolfgang
-        carpool Peter, Martin, Wolfgang
-        carpool Peter + Martin + Wolfgang +1 (+1 is dropped in accounting, guests are free)
-        helloworld Peter+++Martin_,8123,,---Wolfgang
+        'Carpool - Peter + Martin + Wolfgang   '
+        'carpool Peter    Martin Wolfgang'
+        'carpool Peter, Martin, Wolfgang  
+        'carpool Peter + Martin + Wolfgang +1' (+1 is dropped in accounting, guests are free)
+        'helloworld Peter+++Martin_,8123,,---Wolfgang'
 
     Not OK:
         Peter Martin Wolfgang (lacks Carpool magic word)
@@ -77,22 +130,23 @@ def get_driver_passengers(topic):
         carpool Peter, Martin Wu, Wolfgang (names must be one word only)
         carpool - Peter, Bart-Jan (names must be only alphanumeric, all other tokens are used as separator)
     """
+
     # Regexp pattern to strip non-alphanumeric characters
     # https://stackoverflow.com/questions/1276764/stripping-everything-but-alphanumeric-chars-from-a-string-in-python
     # Split topic by non-alphanumeric characters - https://docs.python.org/2/library/re.html
-    names = RE_TOPIC_SPLIT.split(topic.lower(), re.UNICODE)
+    words = resplit.split(topic.lower(), re.UNICODE)
 
     # Remove empty hits in case string ends in non-alphanumeric char (e.g. 
     # space). Alternatively we could strip() the string using all 
     # non-alphanumeric charactere, but another regexp is probably slower
-    names = list(filter(None, names))
+    # See also https://docs.python.org/3.5/library/re.html#re.split
+    words = list(filter(None, words))
 
-    driver = names[1]
-    passengers = names[2:]
-        
-    return [driver, passengers]
+    # Return flat list of words. Split into driver/passengers or 
+    # debtor/creditor elsewhere.
+    return words
 
-def get_location(location, time):
+def icsparse_event_get_location(location, time):
     """
     From event location string, get validated carpool location
     """
@@ -113,22 +167,6 @@ def get_location(location, time):
             return v
     # If nothing found, return default location
     return locdefault
-
-def normalize_ics(file='calendar.ics'):
-    """
-    Given ICS file, normalize for carpool accounting to fixed set of drivers, times, locations.
-    """
-    with open(file,'rb') as g:
-        gcal = Calendar.from_ical(g.read())
-        # Only look at events (name == 'VEVENT') that are not cancelled (STATUS != 'TRANSPARENT')
-        # Get people from SUMMARY, get valid location from LOCATION/DTSTART
-        normed = [get_driver_passengers(c.get('SUMMARY')) +
-                [get_location(c.get('LOCATION'),
-                c.get('DTSTART')),c.get('DTSTART').dt] 
-                    for c in gcal.walk() 
-                        if (c.name == 'VEVENT' and 
-                            c.get('TRANSP') != 'TRANSPARENT')]
-    return normed
 
 def carpool_account(lastevents, tripcost=16):
     """
@@ -167,6 +205,62 @@ def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html', h
 
     with open(htmlfile, 'w') as fd:
         fd.write(render)
+
+def storedata(obj, file='./sample/calendar-anon.json'):
+    """
+    Store dict of carpool data, convert datetime to string for 
+    json compatibility.
+    """
+    with open(file, 'w') as fd:
+        json.dump({str(k):v for k,v in obj.items()}, fd, indent=1)
+
+def loaddata(file):
+    """
+    Load carpool data json, convert str back to datetime
+    """
+    with open(file, 'r') as fd:
+        events = json.load(fd)
+    return OrderedDict({datetime.datetime.fromisoformat(k):v for k,v in events.items()})
+
+def updatedata(newevents, file='./sample/calendar-anon.json', maxage=30):
+    """
+    Given a dict of (possibly new) events, append to (possibly existing) JSON,
+    overwriting old data as follows:
+        - All events in file older than maxage days: keep
+        - All events in file also in ICS: overwrite
+    The rationale is that events might have been deleted in the calendar which
+    we cannot detect from the ICS, so we simply overwrite everything from the
+    ICS.
+    """
+
+    # @TODO set maxage to max(oldest event in events, maxage) in case events is very new
+
+    allevents = OrderedDict()
+    try:
+        with open(file, "rt") as fd:
+            e = json.load(fd)
+            # Select only events older than 30d. Do not use time in comparison 
+            # to ensure we only cut-off on whole days, else we could get 
+            # partial data for one day
+            n = datetime.date.today()
+            for k,v in e.items():
+                edate = datetime.datetime.fromisoformat(k)
+                if ((n-edate.date()).days > maxage):
+                    allevents[edate] = v
+
+        # Now add back new events
+        for k,v in newevents.items():
+            if ((n-k.date()).days <= maxage):
+                allevents[k] = v
+    except FileNotFoundError:
+        allevents = newevents
+        pass
+
+    # Re-open file, truncate, write all data
+    storedata(allevents, file)
+
+    return allevents
+
 
 def update_csv(events, csvpath="./calendar.csv"):
     """
@@ -267,14 +361,14 @@ def find_dest(lastevents):
 
 # Parse commandline arguments
 parser = argparse.ArgumentParser(description="Do carpool balance acocunting on properly-formatted calendar events (ics) using a csv file as intermediate cache for items no longer in calendar")
-parser.add_argument("calfile", help="Calendar file to parse")
-parser.add_argument("csvfile", help="CSV file to use as cache")
+parser.add_argument("--calfile", help="Calendar file to parse", default=(calfile or None))
+# parser.add_argument("csvfile", help="CSV file to use as cache")
 parser.add_argument("--htmltemplate", help="HTML template to use for export")
 parser.add_argument("--htmlfile", help="HTML file to export template to")
-# args = parser.parse_args()
+args = parser.parse_args()
 
-##lastevents = normalize_ics(args.calfile)
-# allevents = update_csv(lastevents, args.csvfile)
+newevents = normalize_ics(args.calfile)
+allevents = updatedata(newevents)
 # balance = carpool_account(allevents)
 # export_as_html(lastevents, balance, htmltemplate=args.htmltemplate, htmlfile=args.htmlfile)
 
@@ -282,27 +376,3 @@ parser.add_argument("--htmlfile", help="HTML file to export template to")
 #lastevents = normalize_ics(calfile)
 #lastevents = find_dest(lastevents)
 #carpool_account_distance(lastevents)
-
-
-def storedata(obj, file='./sample/calendar-anon2.json'):
-    """
-    Store dict of carpool data, convert datetime to string for 
-    json compatibility
-    """
-    with open(file, 'w') as fd:
-        json.dump({str(k):v for k,v in obj.items()}, fd, indent=1)
-
-def loaddata(file):
-    """
-    Load carpool data json, convert str back to datetime
-    """
-    with open(file, 'r') as fd:
-        events = json.load(fd)
-    return OrderedDict({datetime.datetime.fromisoformat(k):v for k,v in events.items()})
-
-print ("storedata")
-print(events)
-storedata(events, './sample/calendar-anon2.json')
-print ("loaddata")
-e = loaddata('./sample/calendar-anon2.json')
-print(e == events)
