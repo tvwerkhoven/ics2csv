@@ -49,11 +49,12 @@ from collections import OrderedDict
 
 # Load config to parse data
 config = yaml.safe_load(open(r"./sample/carpool-anon.yaml"))
-calfile = config['calfile']
-validamlocs = config['validamlocs']
-validpmlocs = config['validpmlocs']
-defaultamloc = "UNKNOWN-EVERDINGEN"
-defaultpmloc = "UNKNOWN-B7"
+CFG_CALFILE = config['calfile']
+CFG_TRIPCOST = 16
+CFG_VALIDAMLOCS = config['validamlocs']
+CFG_VALIDPMLOCS = config['validpmlocs']
+CFG_DEFAULTAMLOC = "UNKNOWN-EVERDINGEN"
+CFG_DEFAULTPMLOC = "UNKNOWN-B7"
 
 def normalize_ics(file='calendar.ics'):
     """
@@ -95,7 +96,8 @@ def icsparse_event(c):
         return {'type': 'carpool',
                 'driver': driver,
                 'passengers': passengers,
-                'origin': origin}
+                'origin': origin,
+                'tripcost': CFG_TRIPCOST}
     
     elif ('transfer' in event_type):
         try:
@@ -152,11 +154,11 @@ def icsparse_event_get_location(location, time):
     """
     # Depending on time, we assume different locations
     if time.dt.hour < 12:
-        validlocs = validamlocs
-        locdefault = "UNKNOWN-EVERDINGEN"
+        validlocs = CFG_VALIDAMLOCS
+        locdefault = CFG_DEFAULTAMLOC
     else:
-        validlocs = validpmlocs
-        locdefault = "UNKNOWN-B7"
+        validlocs = CFG_VALIDPMLOCS
+        locdefault = CFG_DEFAULTPMLOC
 
     # For each valid location, check if it's found in the actual location string
     loc = location.lower()
@@ -168,20 +170,25 @@ def icsparse_event_get_location(location, time):
     # If nothing found, return default location
     return locdefault
 
-def carpool_account(lastevents, tripcost=16):
+def carpool_account(allevents):
     """
-    Given normalized ICS input (driver, passengers, departure location, 
-    start time), distribute tripcost over driver and passenger.
-    """
+    Given normalized ICS input, calculate account balance over time.
 
+    For event type 'carpool', distribute tripcost equally over driver and passengers
+    For event type 'transfer', transfer credit from debtor to creditor
+    """
     balance = {}
 
-    for driver, passengers, loc, time in lastevents:
-        # print("d: {}, d: {}, p: {}".format(time, driver, ",".join(passengers)))
-        npers = 1 + len(passengers)
-        balance[driver] = balance.get(driver,0) + tripcost - tripcost/npers
-        for p in passengers:
-            balance[p] = balance.get(p,0) - tripcost/npers
+    for k,v in allevents.items():
+        if v['type'] == 'carpool':
+            npers = 1 + len(v['passengers'])
+            balance[v['driver']] = balance.get(v['driver'],0) + v['tripcost'] - v['tripcost']/npers
+            for p in v['passengers']:
+                balance[p] = balance.get(p,0) - v['tripcost']/npers
+        if v['type'] == 'transfer':
+            balance[v['creditor']] = balance.get(v['creditor'], 0) + v['amount']
+            balance[v['debtor']] = balance.get(v['debtor'], 0) - v['amount']
+
     return balance
 
 def export_as_html(lastevents, balance, htmltemplate='./web/index_templ.html', htmlfile='./web/index.html'):
@@ -361,7 +368,7 @@ def find_dest(lastevents):
 
 # Parse commandline arguments
 parser = argparse.ArgumentParser(description="Do carpool balance acocunting on properly-formatted calendar events (ics) using a csv file as intermediate cache for items no longer in calendar")
-parser.add_argument("--calfile", help="Calendar file to parse", default=(calfile or None))
+parser.add_argument("--calfile", help="Calendar file to parse", default=(CFG_CALFILE or None))
 # parser.add_argument("csvfile", help="CSV file to use as cache")
 parser.add_argument("--htmltemplate", help="HTML template to use for export")
 parser.add_argument("--htmlfile", help="HTML file to export template to")
@@ -369,7 +376,8 @@ args = parser.parse_args()
 
 newevents = normalize_ics(args.calfile)
 allevents = updatedata(newevents)
-# balance = carpool_account(allevents)
+balance = carpool_account(allevents)
+
 # export_as_html(lastevents, balance, htmltemplate=args.htmltemplate, htmlfile=args.htmlfile)
 
 # Interactive use with YAML file:
