@@ -343,7 +343,14 @@ events[datetime.datetime(2020,1,1,18,0)] = {'type': 'carpool', 'driver': 'Bob', 
 events[datetime.datetime(2020,1,2,7,0)] = {'type': 'carpool', 'driver': 'Alice', 'passengers': ['Bob', 'Charlie'], 'location': 'home'}
 events[datetime.datetime(2020,1,2,16,0)] = {'type': 'carpool', 'driver': 'Alice', 'passengers': ['Bob', 'Charlie'], 'location': 'work'}
 
-with open('./sample/calendar-anon.json', 'w'):
-    json.dumps(events, cls=MonkeyObjectEncoder)
+with open('./sample/calendar-anon.json', 'w') as fd:
+    # json.dump(events, fd, cls=DatesToStrings)
     print(events)
 
+
+def storedata(obj, file='./sample/calendar-anon2.json'):
+    with open(file, 'w') as fd:
+        json.dump({str(k):v for k,v in obj.items()}, fd)
+
+
+storedata(events)
