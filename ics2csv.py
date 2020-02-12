@@ -70,6 +70,7 @@ def normalize_ics(file='calendar.ics'):
             # Only look at events (name == 'VEVENT') that are not cancelled (STATUS != 'TRANSPARENT')
             # Get people from SUMMARY, get valid location from LOCATION/DTSTART
             if (c.name == 'VEVENT' and c.get('TRANSP') != 'TRANSPARENT'):
+                # FIXME: datetime is not unique enough as key for trips, trip can have same dept time. Use driver+time instead?
                 events[c.get('DTSTART').dt] = icsparse_event(c, uniquepeople)
 
     return events
